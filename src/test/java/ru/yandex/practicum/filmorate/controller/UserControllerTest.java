@@ -34,23 +34,13 @@ public class UserControllerTest {
         // Ошибка: неверный email
         String userJson = "{ \"email\": \"not-an-email\", \"login\": \"user\", \"birthday\": \"2000-01-01\" }";
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(userJson)).andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldCreateUserWithLoginAsNameIfNameMissing() throws Exception {
         // Автоматически подставляется логин как имя
-        String userJson = """
-                
-                {
-                    "email": "user@mail.com",
-                    "login": "log123",
-                    "birthday": "2000-01-01"
-                }
-                """;
+        String userJson = "{\"email\": \"user@mail.com\", \"login\": \"log123\", \"birthday\": \"2000-01-01\"}";
 
         User expectedUser = new User();
         expectedUser.setId(1);
@@ -61,12 +51,7 @@ public class UserControllerTest {
 
         when(userService.createUser(any(User.class))).thenReturn(expectedUser);
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name").value("log123"));
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(userJson)).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.name").value("log123"));
     }
 
 }
