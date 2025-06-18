@@ -44,6 +44,7 @@ public class UserControllerTest {
     void shouldCreateUserWithLoginAsNameIfNameMissing() throws Exception {
         // Автоматически подставляется логин как имя
         String userJson = """
+                
                 {
                     "email": "user@mail.com",
                     "login": "log123",
