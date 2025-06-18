@@ -1,4 +1,4 @@
 package ru.yandex.practicum.filmorate;
 
-public class dummy {
+public class Dummy {
 }
