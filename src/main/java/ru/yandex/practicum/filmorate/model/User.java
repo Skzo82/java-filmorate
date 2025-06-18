@@ -25,6 +25,7 @@ public class User {
     private LocalDate birthday;
 
     private Set<Integer> friends = new HashSet<>(); // Список ID друзей
+
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", email='" + email + '\'' + '}';
