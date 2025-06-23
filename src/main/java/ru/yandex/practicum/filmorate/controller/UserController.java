@@ -17,57 +17,29 @@ public class UserController {
 
     private final UserService userService;
 
+    // Создание пользователя с полной валидацией
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin()); // если имя отсутствует, подставляем логин
-        }
         log.info("Создание пользователя: {}", user);
         return userService.createUser(user);
     }
 
-
+    // Обновление пользователя: только ID обязателен, остальное — опционально
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
         log.info("Обновление пользователя: {}", user);
         return userService.updateUser(user);
     }
 
+    // Получение всех пользователей
     @GetMapping
     public List<User> getAllUsers() {
         return userService.findAll();
     }
-
+    // Получение пользователя по ID
     @GetMapping("/{id}")
     public User getUserById(@PathVariable int id) {
+        log.info("Запрошен пользователь с ID: {}", id);
         return userService.findById(id);
-    }
-
-    @DeleteMapping("/clear")
-    public void clearAllUsers() {
-        userService.deleteAll();
-        log.info("Все пользователи удалены");
-    }
-
-    @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable int id, @PathVariable int friendId) {
-        userService.addFriend(id, friendId);
-        log.info("Пользователь {} добавил друга: {}", id, friendId);
-    }
-
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable int id, @PathVariable int friendId) {
-        userService.removeFriend(id, friendId);
-        log.info("Пользователь {} удалил друга: {}", id, friendId);
-    }
-
-    @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable int id) {
-        return userService.getFriends(id);
-    }
-
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        return userService.getCommonFriends(id, otherId);
     }
 }

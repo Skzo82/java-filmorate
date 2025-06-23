@@ -16,6 +16,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
@@ -53,5 +56,53 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(userJson)).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.name").value("log123"));
     }
+    @Test
+    void shouldReturn404IfUserNotFound() throws Exception {
+        int nonExistentUserId = 999;
+
+        when(userService.findById(nonExistentUserId)).thenThrow(new NotFoundException("Пользователь не найден"));
+
+        mockMvc.perform(get("/users/{id}", nonExistentUserId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Пользователь не найден"));
+    }
+    @Test
+    void shouldReturn404OnUpdateIfUserNotFound() throws Exception {
+        User userToUpdate = new User();
+        userToUpdate.setId(999);
+        userToUpdate.setEmail("missing@mail.com");
+        userToUpdate.setLogin("missing");
+        userToUpdate.setBirthday(LocalDate.of(2000, 1, 1));
+
+        when(userService.updateUser(any(User.class)))
+                .thenThrow(new NotFoundException("Пользователь не найден"));
+
+        mockMvc.perform(put("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(userToUpdate)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Пользователь не найден"));
+    }
+    @Test
+    void shouldUpdateUserSuccessfully() throws Exception {
+        User userToUpdate = new User();
+        userToUpdate.setId(1);
+        userToUpdate.setEmail("update@mail.com");
+        userToUpdate.setLogin("updatedLogin");
+        userToUpdate.setName("Updated Name");
+        userToUpdate.setBirthday(LocalDate.of(1990, 5, 15));
+
+        when(userService.updateUser(any(User.class))).thenReturn(userToUpdate);
+
+        mockMvc.perform(put("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(userToUpdate)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("update@mail.com"))
+                .andExpect(jsonPath("$.name").value("Updated Name"));
+    }
+
+
 
 }

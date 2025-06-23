@@ -39,12 +39,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film findById(int id) {
-        Film film = films.get(id);
-        if (film == null) {
-            throw new ValidationException("Фильм не найден");
-        }
-        return film;
+        return films.get(id); // Возвращает null, если фильм не найден
     }
+
 
     @Override
     public void deleteAll() {
