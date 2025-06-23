@@ -87,6 +87,7 @@ public class FilmServiceTest {
         film.setDuration(120);
         return film;
     }
+
     @Test
     void shouldThrowNotFoundWhenFilmDoesNotExist() {
         // ID несуществующего фильма

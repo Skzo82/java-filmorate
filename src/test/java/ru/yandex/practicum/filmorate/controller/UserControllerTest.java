@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 @WebMvcTest(UserController.class)
@@ -56,6 +57,7 @@ public class UserControllerTest {
 
         mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON).content(userJson)).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$.name").value("log123"));
     }
+
     @Test
     void shouldReturn404IfUserNotFound() throws Exception {
         int nonExistentUserId = 999;
@@ -66,6 +68,7 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Пользователь не найден"));
     }
+
     @Test
     void shouldReturn404OnUpdateIfUserNotFound() throws Exception {
         User userToUpdate = new User();
@@ -83,6 +86,7 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Пользователь не найден"));
     }
+
     @Test
     void shouldUpdateUserSuccessfully() throws Exception {
         User userToUpdate = new User();
@@ -102,7 +106,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email").value("update@mail.com"))
                 .andExpect(jsonPath("$.name").value("Updated Name"));
     }
-
 
 
 }

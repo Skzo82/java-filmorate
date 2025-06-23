@@ -40,6 +40,7 @@ public class FilmController {
     public Collection<Film> getAllFilms() {
         return filmService.findAll();
     }
+
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleValidationException(ValidationException ex) {

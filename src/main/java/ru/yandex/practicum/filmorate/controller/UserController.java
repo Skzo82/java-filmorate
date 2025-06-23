@@ -36,6 +36,7 @@ public class UserController {
     public List<User> getAllUsers() {
         return userService.findAll();
     }
+
     // Получение пользователя по ID
     @GetMapping("/{id}")
     public User getUserById(@PathVariable int id) {

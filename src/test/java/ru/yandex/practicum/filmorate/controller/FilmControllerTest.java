@@ -67,7 +67,7 @@ public class FilmControllerTest {
     @Test
     void shouldRejectFilmWithTooLongDescription() throws Exception {
         Film invalidFilm = new Film();
-        invalidFilm.setName("Film troppo lungo");
+        invalidFilm.setName("Фильм слишком длинный");
         invalidFilm.setDescription("A".repeat(201)); // строка длиной 201 символ
         invalidFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
         invalidFilm.setDuration(120);
