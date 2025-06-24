@@ -30,7 +30,7 @@ public class FilmController {
 
     // Обновление фильма — id обязателен, остальные поля опциональны
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@RequestBody Film film) {
         log.info("Обновление фильма: {}", film);
         return filmService.updateFilmCustomValidation(film);
     }

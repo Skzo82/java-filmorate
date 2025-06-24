@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -68,4 +69,28 @@ public class UserService {
                 .map(this::findById)
                 .collect(Collectors.toList());
     }
+
+    public User updateUserCustomValidation(User updatedUser) {
+        if (updatedUser.getId() <= 0) {
+            throw new ValidationException("ID пользователя обязателен для обновления.");
+        }
+
+        User existing = findById(updatedUser.getId());
+
+        if (updatedUser.getEmail() != null) {
+            existing.setEmail(updatedUser.getEmail());
+        }
+        if (updatedUser.getLogin() != null) {
+            existing.setLogin(updatedUser.getLogin());
+        }
+        if (updatedUser.getName() != null) {
+            existing.setName(updatedUser.getName());
+        }
+        if (updatedUser.getBirthday() != null) {
+            existing.setBirthday(updatedUser.getBirthday());
+        }
+
+        return existing;
+    }
+
 }
