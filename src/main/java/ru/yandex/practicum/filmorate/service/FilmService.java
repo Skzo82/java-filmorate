@@ -33,6 +33,18 @@ public class FilmService {
         return film;
     }
 
+    public void addLike(int filmId, int userId) {
+        filmStorage.addLike(filmId, userId);
+    }
+
+    public void removeLike(int filmId, int userId) {
+        filmStorage.removeLike(filmId, userId);
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        return filmStorage.getPopularFilms(count);
+    }
+
 
     // Обновление фильма с пользовательской валидацией
     public Film updateFilmCustomValidation(Film updatedFilm) {
