@@ -12,7 +12,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 Not Found
+    // 404 Not Found per NotFoundException
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Map<String, String>> handleNotFoundException(NotFoundException e) {
         return ResponseEntity
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", e.getMessage()));
     }
 
-    // 400 Bad Request (custom validation)
+    // 400 Bad Request per ValidationException
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Map<String, String>> handleValidationException(ValidationException e) {
         return ResponseEntity
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", e.getMessage()));
     }
 
-    // 400 Bad Request (Bean Validation/Jakarta @Valid)
+    // 400 Bad Request
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
                 .body(errors);
     }
 
-    // 500 Internal Server Error (fallback)
+    // 500 Internal Server Error fallback
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception e) {
         return ResponseEntity

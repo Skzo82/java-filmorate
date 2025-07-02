@@ -7,10 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,17 +39,10 @@ public class FilmController {
         return filmService.findAll();
     }
 
-    @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleValidationException(ValidationException ex) {
-        return ex.getMessage(); // текст ошибки как тело ответа
-    }
-
-
     // Поставить лайк фильму
     @PutMapping("/{id}/like/{userId}")
     public ResponseEntity<?> addLike(@PathVariable int id, @PathVariable int userId) {
-        filmService.addLike(id, userId);
+        filmService.addLike(id, userId); // Le eccezioni vengono gestite dal GlobalExceptionHandler
         return ResponseEntity.ok().build();
     }
 
@@ -64,11 +53,9 @@ public class FilmController {
         return ResponseEntity.ok().build();
     }
 
-
     // Получить топ популярных фильмов
     @GetMapping("/popular")
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.getPopularFilms(count);
     }
-
 }
