@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
@@ -48,17 +51,21 @@ public class FilmController {
         return ex.getMessage(); // текст ошибки как тело ответа
     }
 
+
     // Поставить лайк фильму
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable int id, @PathVariable int userId) {
+    public ResponseEntity<?> addLike(@PathVariable int id, @PathVariable int userId) {
         filmService.addLike(id, userId);
+        return ResponseEntity.ok().build();
     }
 
     // Удалить лайк у фильма
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable int id, @PathVariable int userId) {
+    public ResponseEntity<?> removeLike(@PathVariable int id, @PathVariable int userId) {
         filmService.removeLike(id, userId);
+        return ResponseEntity.ok().build();
     }
+
 
     // Получить топ популярных фильмов
     @GetMapping("/popular")
