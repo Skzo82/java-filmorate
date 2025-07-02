@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class FilmService {
 
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, 12, 28);
 
     public Film createFilm(Film film) {
@@ -33,18 +35,27 @@ public class FilmService {
         return film;
     }
 
+    // Добавить лайк фильму
     public void addLike(int filmId, int userId) {
+        Film film = findById(filmId); // бросит 404 если нет фильма
+        if (userStorage.findById(userId) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         filmStorage.addLike(filmId, userId);
     }
 
+    // Удалить лайк у фильма
     public void removeLike(int filmId, int userId) {
+        Film film = findById(filmId); // бросит 404 если нет фильма
+        if (userStorage.findById(userId) == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getPopularFilms(count);
     }
-
 
     // Обновление фильма с пользовательской валидацией
     public Film updateFilmCustomValidation(Film updatedFilm) {
