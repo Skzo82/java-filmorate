@@ -9,7 +9,9 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class FilmService {
         if (userStorage.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
-        filmStorage.addLike(filmId, userId);
+        film.getLikes().add(userId);
     }
 
     // Удалить лайк у фильма
@@ -50,11 +52,15 @@ public class FilmService {
         if (userStorage.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
-        filmStorage.removeLike(filmId, userId);
+        film.getLikes().remove(userId);
     }
 
+    // Получить популярные фильмы
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.getPopularFilms(count);
+        return filmStorage.findAll().stream()
+                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     // Обновление фильма с пользовательской валидацией
