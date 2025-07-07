@@ -40,22 +40,22 @@ public class UserService {
         userStorage.deleteAll();
     }
 
-    // Добавить в друзья
+    // Добавить в друзья (через метод модели)
     public void addFriend(int id, int friendId) {
         User user = findById(id);
         User friend = findById(friendId);
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(id);
+        user.addFriend(friendId);
+        friend.addFriend(id);
     }
 
-    // Удалить из друзей
+    // Удалить из друзей (через метод модели)
     public void removeFriend(int id, int friendId) {
         User user = findById(id);
         User friend = findById(friendId);
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(id);
+        user.removeFriend(friendId);
+        friend.removeFriend(id);
     }
 
     // Получить список друзей пользователя

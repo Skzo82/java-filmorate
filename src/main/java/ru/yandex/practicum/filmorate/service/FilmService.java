@@ -37,22 +37,22 @@ public class FilmService {
         return film;
     }
 
-    // Добавить лайк фильму
+    // Добавить лайк фильму (теперь через Film)
     public void addLike(int filmId, int userId) {
-        Film film = findById(filmId); // бросит 404 если нет фильма
+        Film film = findById(filmId); // 404 если нет фильма
         if (userStorage.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
-        film.getLikes().add(userId);
+        film.addLike(userId);
     }
 
-    // Удалить лайк у фильма
+    // Удалить лайк у фильма (теперь через Film)
     public void removeLike(int filmId, int userId) {
-        Film film = findById(filmId); // бросит 404 если нет фильма
+        Film film = findById(filmId); // 404 если нет фильма
         if (userStorage.findById(userId) == null) {
             throw new NotFoundException("Пользователь не найден");
         }
-        film.getLikes().remove(userId);
+        film.removeLike(userId);
     }
 
     // Получить популярные фильмы

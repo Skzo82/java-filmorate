@@ -30,4 +30,24 @@ public class Film {
     private int duration;
 
     private Set<Integer> likes = new HashSet<>();
+
+    /**
+     * Добавить лайк от пользователя.
+     *
+     * @param userId ID пользователя
+     * @return true если лайк был добавлен, false если уже был
+     */
+    public boolean addLike(int userId) {
+        return likes.add(userId);
+    }
+
+    /**
+     * Удалить лайк пользователя.
+     *
+     * @param userId ID пользователя
+     * @return true если лайк был удалён, false если не было
+     */
+    public boolean removeLike(int userId) {
+        return likes.remove(userId);
+    }
 }
