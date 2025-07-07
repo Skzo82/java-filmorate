@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -28,29 +29,36 @@ public class UserService {
     }
 
     public User findById(int id) {
-        return userStorage.findById(id);
+        User user = userStorage.findById(id);
+        if (user == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+        return user;
     }
 
     public void deleteAll() {
         userStorage.deleteAll();
     }
 
+    // Добавить в друзья (через метод модели)
     public void addFriend(int id, int friendId) {
         User user = findById(id);
         User friend = findById(friendId);
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(id);
+        user.addFriend(friendId);
+        friend.addFriend(id);
     }
 
+    // Удалить из друзей (через метод модели)
     public void removeFriend(int id, int friendId) {
         User user = findById(id);
         User friend = findById(friendId);
 
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(id);
+        user.removeFriend(friendId);
+        friend.removeFriend(id);
     }
 
+    // Получить список друзей пользователя
     public List<User> getFriends(int id) {
         User user = findById(id);
         return user.getFriends().stream()
@@ -58,6 +66,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    // Получить общих друзей двух пользователей
     public List<User> getCommonFriends(int id, int otherId) {
         User user1 = findById(id);
         User user2 = findById(otherId);
@@ -70,6 +79,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    // Обновление пользователя с пользовательской валидацией
     public User updateUserCustomValidation(User updatedUser) {
         if (updatedUser.getId() <= 0) {
             throw new ValidationException("ID пользователя обязателен для обновления.");
@@ -92,5 +102,4 @@ public class UserService {
 
         return existing;
     }
-
 }
