@@ -1,22 +1,22 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-// import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.http.MediaType;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-// import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-/* import java.time.LocalDate;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*; */
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Тесты для управления друзьями пользователей
@@ -33,7 +33,7 @@ public class UserFriendshipControllerTest {
     @MockBean
     private UserService userService;
 
-   /* @Test
+    @Test
     void shouldAddAndRemoveFriendsCorrectly() throws Exception {
         User user1 = new User();
         user1.setId(1);
@@ -91,5 +91,5 @@ public class UserFriendshipControllerTest {
         mockMvc.perform(get("/users/1/friends/common/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(3));
-    }*/
+    }
 }

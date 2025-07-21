@@ -5,6 +5,8 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.ReleaseDateConstraint;
 
 import java.time.LocalDate;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Модель фильма
@@ -26,4 +28,26 @@ public class Film {
 
     @Positive(message = "Продолжительность должна быть положительной")
     private int duration;
+
+    private Set<Integer> likes = new HashSet<>();
+
+    /**
+     * Добавить лайк от пользователя.
+     *
+     * @param userId ID пользователя
+     * @return true если лайк был добавлен, false если уже был
+     */
+    public boolean addLike(int userId) {
+        return likes.add(userId);
+    }
+
+    /**
+     * Удалить лайк пользователя.
+     *
+     * @param userId ID пользователя
+     * @return true если лайк был удалён, false если не было
+     */
+    public boolean removeLike(int userId) {
+        return likes.remove(userId);
+    }
 }
