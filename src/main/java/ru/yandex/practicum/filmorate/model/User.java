@@ -26,6 +26,27 @@ public class User {
 
     private Set<Integer> friends = new HashSet<>(); // Список ID друзей
 
+    /**
+     * Добавляет друга.
+     *
+     * @param friendId ID пользователя-друга
+     * @return true если друг был добавлен, false если уже был
+     */
+    public boolean addFriend(int friendId) {
+        return friends.add(friendId);
+    }
+
+    /**
+     * Удаляет друга.
+     *
+     * @param friendId ID пользователя-друга
+     * @return true если друг был удалён, false если его не было
+     */
+    public boolean removeFriend(int friendId) {
+        return friends.remove(friendId);
+    }
+
+
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", email='" + email + '\'' + '}';
