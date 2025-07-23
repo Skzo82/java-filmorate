@@ -3,8 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -12,8 +11,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
-@Import(UserDbStorage.class)
+@SpringBootTest
 class UserDbStorageTest {
 
     @Autowired
@@ -24,6 +22,9 @@ class UserDbStorageTest {
 
     @BeforeEach
     void setUp() {
+        // Rimuovi tutti gli utenti per avere DB pulito tra i test (opzionale)
+        userStorage.deleteAll();
+
         user1 = new User();
         user1.setEmail("user1@mail.com");
         user1.setLogin("user1");
