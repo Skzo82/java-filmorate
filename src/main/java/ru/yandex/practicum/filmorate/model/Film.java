@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.validation.ReleaseDateConstraint;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,6 +32,28 @@ public class Film {
 
     @NotNull(message = "MPA обязателен")
     private Mpa mpa;
-    private Set<Genre> genres = new LinkedHashSet<>();
 
+    private Set<Genre> genres = new LinkedHashSet<>(); // Порядок важен для сериализации
+
+    private Set<Integer> likes = new HashSet<>();
+
+    /**
+     * Добавить лайк от пользователя.
+     *
+     * @param userId ID пользователя
+     * @return true если лайк был добавлен, false если уже был
+     */
+    public boolean addLike(int userId) {
+        return likes.add(userId);
+    }
+
+    /**
+     * Удалить лайк пользователя.
+     *
+     * @param userId ID пользователя
+     * @return true если лайк был удалён, false если не было
+     */
+    public boolean removeLike(int userId) {
+        return likes.remove(userId);
+    }
 }
