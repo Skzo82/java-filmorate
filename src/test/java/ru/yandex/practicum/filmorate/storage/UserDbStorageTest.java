@@ -22,7 +22,6 @@ class UserDbStorageTest {
 
     @BeforeEach
     void setUp() {
-        // Rimuovi tutti gli utenti per avere DB pulito tra i test (opzionale)
         userStorage.deleteAll();
 
         user1 = new User();
