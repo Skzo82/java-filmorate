@@ -94,6 +94,7 @@ public class FilmService {
 
         return filmStorage.updateFilm(existingFilm);
     }
+
     public Film getFilmById(int id) {
         return findById(id);
     }
