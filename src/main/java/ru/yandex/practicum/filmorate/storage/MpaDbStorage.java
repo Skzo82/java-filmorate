@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
@@ -26,7 +28,11 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Mpa findById(int id) {
         String sql = "SELECT * FROM mpa WHERE id = ?";
-        return jdbcTemplate.queryForObject(sql, mpaRowMapper, id);
+        try {
+            return jdbcTemplate.queryForObject(sql, mpaRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("MPA не найден");
+        }
     }
 
     private final RowMapper<Mpa> mpaRowMapper = (ResultSet rs, int rowNum) -> {
