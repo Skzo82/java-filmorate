@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryGenreStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryMpaStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -20,8 +22,14 @@ public class FilmServiceTest {
 
     @BeforeEach
     void setUp() {
-        filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        filmService = new FilmService(
+                new InMemoryFilmStorage(),
+                new InMemoryUserStorage(),
+                new InMemoryMpaStorage(),
+                new InMemoryGenreStorage()
+        );
     }
+
 
     @Test
     void shouldCreateFilmSuccessfully() {
@@ -99,5 +107,13 @@ public class FilmServiceTest {
 
         assertTrue(ex.getMessage().contains("Фильм с id=" + missingId + " не найден."));
     }
+
+    FilmService service = new FilmService(
+            new InMemoryFilmStorage(),
+            new InMemoryUserStorage(),
+            new InMemoryMpaStorage(),
+            new InMemoryGenreStorage()
+    );
+
 
 }
