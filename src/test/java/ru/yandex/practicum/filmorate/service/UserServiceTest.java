@@ -99,4 +99,55 @@ public class UserServiceTest {
 
         assertTrue(userService.findAll().isEmpty(), "Список пользователей должен быть пуст");
     }
+
+    @Test
+    void shouldAddFriendAndRemoveFriend() {
+        User user1 = new User();
+        user1.setEmail("a@mail.com");
+        user1.setLogin("a");
+        user1.setName("A");
+        user1.setBirthday(LocalDate.of(1990, 1, 1));
+        User created1 = userService.createUser(user1);
+
+        User user2 = new User();
+        user2.setEmail("b@mail.com");
+        user2.setLogin("b");
+        user2.setName("B");
+        user2.setBirthday(LocalDate.of(1991, 2, 2));
+        User created2 = userService.createUser(user2);
+
+        userService.addFriend(created1.getId(), created2.getId());
+        List<User> friends = userService.getFriends(created1.getId());
+        assertEquals(1, friends.size());
+        assertEquals(created2.getId(), friends.get(0).getId());
+
+        userService.removeFriend(created1.getId(), created2.getId());
+        friends = userService.getFriends(created1.getId());
+        assertEquals(0, friends.size());
+    }
+
+    @Test
+    void shouldGetCommonFriends() {
+        User user1 = userService.createUser(createUser("user1", "u1@mail.com"));
+        User user2 = userService.createUser(createUser("user2", "u2@mail.com"));
+        User common = userService.createUser(createUser("common", "c@mail.com"));
+
+        userService.addFriend(user1.getId(), common.getId());
+        userService.addFriend(user2.getId(), common.getId());
+
+        List<User> commonFriends = userService.getCommonFriends(user1.getId(), user2.getId());
+        assertEquals(1, commonFriends.size());
+        assertEquals(common.getId(), commonFriends.get(0).getId());
+    }
+
+    private User createUser(String name, String email) {
+        User u = new User();
+        u.setLogin(name);
+        u.setName(name);
+        u.setEmail(email);
+        u.setBirthday(LocalDate.of(2000, 1, 1));
+        return u;
+    }
+
+
 }

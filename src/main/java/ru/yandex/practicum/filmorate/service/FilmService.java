@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -11,10 +11,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmStorage filmStorage;
+
+
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
+
     private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, 12, 28);
 
     public Film createFilm(Film film) {
@@ -33,8 +38,6 @@ public class FilmService {
         return film;
     }
 
-
-    // Обновление фильма с пользовательской валидацией
     public Film updateFilmCustomValidation(Film updatedFilm) {
         if (updatedFilm.getId() <= 0) {
             throw new ValidationException("ID фильма обязателен для обновления.");
