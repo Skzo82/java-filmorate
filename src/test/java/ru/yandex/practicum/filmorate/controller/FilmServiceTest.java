@@ -30,7 +30,6 @@ public class FilmServiceTest {
         );
     }
 
-
     @Test
     void shouldCreateFilmSuccessfully() {
         Film film = createTestFilm("Test film");
@@ -94,26 +93,20 @@ public class FilmServiceTest {
         film.setDescription("Test");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
+
+        film.setMpa(new InMemoryMpaStorage().findById(1));
+
         return film;
     }
 
     @Test
     void shouldThrowNotFoundWhenFilmDoesNotExist() {
-        // ID несуществующего фильма
         int missingId = 999;
 
         NotFoundException ex = assertThrows(NotFoundException.class,
                 () -> filmService.findById(missingId));
 
-        assertTrue(ex.getMessage().contains("Фильм с id=" + missingId + " не найден."));
+        assertEquals("Фильм с id=" + missingId + " не найден.", ex.getMessage());
     }
-
-    FilmService service = new FilmService(
-            new InMemoryFilmStorage(),
-            new InMemoryUserStorage(),
-            new InMemoryMpaStorage(),
-            new InMemoryGenreStorage()
-    );
-
 
 }
