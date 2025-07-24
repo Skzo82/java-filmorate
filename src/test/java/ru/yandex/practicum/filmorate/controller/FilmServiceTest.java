@@ -30,7 +30,7 @@ public class FilmServiceTest {
         );
         filmService.getFilmStorage().deleteAll();
 
-        for (int i = 1; i <= 6; i++) {  
+        for (int i = 1; i <= 6; i++) {
             Film film = new Film();
             film.setName("Film " + i);
             film.setDescription("Descrizione " + i);
@@ -40,7 +40,6 @@ public class FilmServiceTest {
             filmService.createFilm(film);
         }
     }
-
 
 
     @Test
