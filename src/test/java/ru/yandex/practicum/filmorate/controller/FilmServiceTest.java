@@ -25,12 +25,14 @@ public class FilmServiceTest {
     @BeforeEach
     void setUp() {
         userStorage = new InMemoryUserStorage();
+
         filmService = new FilmService(
                 new InMemoryFilmStorage(),
                 userStorage,
                 new InMemoryMpaStorage(),
                 new InMemoryGenreStorage()
         );
+
         filmService.getFilmStorage().deleteAll();
 
         for (int i = 1; i <= 6; i++) {
@@ -46,20 +48,24 @@ public class FilmServiceTest {
             Film film = new Film();
             film.setName("Film " + i);
             film.setDescription("Descrizione " + i);
-            film.setReleaseDate(LocalDate.of(2000, 1, i));
+            film.setReleaseDate(LocalDate.of(2000 + i, 1, 1));
             film.setDuration(100 + i);
             film.setMpa(new InMemoryMpaStorage().findById(1));
             filmService.createFilm(film);
         }
 
-        // Prendo tutti i film e utenti
-        List<Film> allFilms = filmService.findAll();
         List<User> allUsers = userStorage.findAll();
+        List<Film> allFilms = filmService.findAll();
 
-        // Aggiungo un like da ciascun utente a ciascun film
         for (int i = 0; i < 6; i++) {
             filmService.addLike(allFilms.get(i).getId(), allUsers.get(i).getId());
         }
+    }
+
+    @Test
+    void testPopularFilmsCount() {
+        List<Film> popularFilms = filmService.getPopularFilms(6);
+        assertEquals(6, popularFilms.size(), "Dovrebbero esserci 6 film popolari");
     }
 
 
