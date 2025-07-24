@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryGenreStorage;
@@ -19,25 +20,45 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmServiceTest {
 
     private FilmService filmService;
+    private InMemoryUserStorage userStorage;
 
     @BeforeEach
     void setUp() {
+        userStorage = new InMemoryUserStorage();
         filmService = new FilmService(
                 new InMemoryFilmStorage(),
-                new InMemoryUserStorage(),
+                userStorage,
                 new InMemoryMpaStorage(),
                 new InMemoryGenreStorage()
         );
         filmService.getFilmStorage().deleteAll();
 
         for (int i = 1; i <= 6; i++) {
+            User user = new User();
+            user.setEmail("user" + i + "@mail.com");
+            user.setLogin("user" + i);
+            user.setName("User " + i);
+            user.setBirthday(LocalDate.of(1990, 1, i));
+            userStorage.createUser(user);
+        }
+
+        for (int i = 1; i <= 6; i++) {
             Film film = new Film();
             film.setName("Film " + i);
             film.setDescription("Descrizione " + i);
-            film.setReleaseDate(LocalDate.of(2000 + i, 1, 1));
+            film.setReleaseDate(LocalDate.of(2000, 1, i));
             film.setDuration(100 + i);
             film.setMpa(new InMemoryMpaStorage().findById(1));
             filmService.createFilm(film);
+        }
+
+        // Prendo tutti i film e utenti
+        List<Film> allFilms = filmService.findAll();
+        List<User> allUsers = userStorage.findAll();
+
+        // Aggiungo un like da ciascun utente a ciascun film
+        for (int i = 0; i < 6; i++) {
+            filmService.addLike(allFilms.get(i).getId(), allUsers.get(i).getId());
         }
     }
 
