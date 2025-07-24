@@ -28,7 +28,6 @@ public class FilmServiceTest {
                 new InMemoryMpaStorage(),
                 new InMemoryGenreStorage()
         );
-        
         filmService.getFilmStorage().deleteAll();
 
         for (int i = 1; i <= 5; i++) {
