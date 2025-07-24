@@ -28,6 +28,16 @@ public class FilmServiceTest {
                 new InMemoryMpaStorage(),
                 new InMemoryGenreStorage()
         );
+        for (int i = 1; i <= 5; i++) {
+            Film film = new Film();
+            film.setName("Film " + i);
+            film.setDescription("Descrizione " + i);
+            film.setReleaseDate(LocalDate.of(2000 + i, 1, 1));
+            film.setDuration(100 + i);
+            film.setMpa(new InMemoryMpaStorage().findById(1));
+
+            filmService.createFilm(film);
+        }
     }
 
     @Test

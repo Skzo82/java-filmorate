@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class UserDbStorageTest {
 
@@ -22,7 +24,7 @@ class UserDbStorageTest {
 
     @BeforeEach
     void setUp() {
-        userStorage.deleteAll();
+        // userStorage.deleteAll();
 
         user1 = new User();
         user1.setEmail("user1@mail.com");
