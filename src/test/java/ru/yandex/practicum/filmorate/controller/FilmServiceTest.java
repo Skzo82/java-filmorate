@@ -28,6 +28,9 @@ public class FilmServiceTest {
                 new InMemoryMpaStorage(),
                 new InMemoryGenreStorage()
         );
+        
+        filmService.getFilmStorage().deleteAll();
+
         for (int i = 1; i <= 5; i++) {
             Film film = new Film();
             film.setName("Film " + i);
@@ -35,10 +38,10 @@ public class FilmServiceTest {
             film.setReleaseDate(LocalDate.of(2000 + i, 1, 1));
             film.setDuration(100 + i);
             film.setMpa(new InMemoryMpaStorage().findById(1));
-
             filmService.createFilm(film);
         }
     }
+
 
     @Test
     void shouldCreateFilmSuccessfully() {
@@ -51,6 +54,7 @@ public class FilmServiceTest {
 
     @Test
     void shouldFindAllFilms() {
+        filmService.getFilmStorage().deleteAll();
         filmService.createFilm(createTestFilm("F1"));
         filmService.createFilm(createTestFilm("F2"));
         List<Film> all = filmService.findAll();

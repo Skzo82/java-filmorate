@@ -37,6 +37,9 @@ public class FilmService {
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
     }
+    public FilmStorage getFilmStorage() {
+        return filmStorage;
+    }
 
     public Film createFilm(Film film) {
 
