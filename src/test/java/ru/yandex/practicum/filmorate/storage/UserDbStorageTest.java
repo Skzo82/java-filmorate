@@ -24,7 +24,7 @@ class UserDbStorageTest {
 
     @BeforeEach
     void setUp() {
-        // userStorage.deleteAll();
+        userStorage.deleteAll();
 
         user1 = new User();
         user1.setEmail("user1@mail.com");
