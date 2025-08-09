@@ -73,22 +73,25 @@ public class FilmService {
 
 
     public void addLike(int filmId, int userId) {
-        Film film = findById(filmId);
+        // Проверяем наличие фильма/пользователя, чтобы вернуть 404 при отсутствии
+        findById(filmId);
         userStorage.findById(userId);
-        film.addLike(userId);
+        // Важно: писать лайк в БД, а не только в память
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
-        Film film = findById(filmId);
+        // Проверяем наличие фильма/пользователя, чтобы вернуть 404 при отсутствии
+        findById(filmId);
         userStorage.findById(userId);
-        film.removeLike(userId);
+        // Важно: удалять лайк из БД
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.findAll().stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        if (count <= 0) count = 10; // простая защита
+        // Критично: использовать выборку из БД с ORDER BY COUNT(likes) DESC
+        return filmStorage.getPopularFilms(count);
     }
 
     public Film updateFilmCustomValidation(Film updatedFilm) {
