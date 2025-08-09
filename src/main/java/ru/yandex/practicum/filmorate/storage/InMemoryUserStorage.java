@@ -51,5 +51,44 @@ public class InMemoryUserStorage implements UserStorage {
         users.clear();
         idGenerator.set(0);
     }
-}
 
+    // --- Управление друзьями (односторонняя дружба) ---
+
+    @Override
+    public void addFriend(int userId, int friendId) {
+        User user = findById(userId);
+        User friend = findById(friendId);
+        user.getFriends().add(friendId);
+    }
+
+    @Override
+    public void removeFriend(int userId, int friendId) {
+        User user = findById(userId);
+        user.getFriends().remove(friendId);
+    }
+
+    @Override
+    public List<User> getFriends(int userId) {
+        User user = findById(userId);
+        List<User> friends = new ArrayList<>();
+        for (Integer friendId : user.getFriends()) {
+            friends.add(findById(friendId));
+        }
+        return friends;
+    }
+
+    @Override
+    public List<User> getCommonFriends(int userId, int otherUserId) {
+        User user = findById(userId);
+        User other = findById(otherUserId);
+
+        Set<Integer> commonIds = new HashSet<>(user.getFriends());
+        commonIds.retainAll(other.getFriends());
+
+        List<User> commonFriends = new ArrayList<>();
+        for (Integer id : commonIds) {
+            commonFriends.add(findById(id));
+        }
+        return commonFriends;
+    }
+}

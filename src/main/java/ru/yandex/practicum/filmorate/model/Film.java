@@ -5,8 +5,9 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.ReleaseDateConstraint;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Модель фильма
@@ -28,6 +29,11 @@ public class Film {
 
     @Positive(message = "Продолжительность должна быть положительной")
     private int duration;
+
+    @NotNull(message = "MPA обязателен")
+    private Mpa mpa;
+
+    private Set<Genre> genres = new LinkedHashSet<>(); // Порядок важен для сериализации
 
     private Set<Integer> likes = new HashSet<>();
 
