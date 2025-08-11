@@ -38,9 +38,9 @@ public class FilmService {
         this.genreStorage = genreStorage;
     }
 
-    public FilmStorage getFilmStorage() {
+   /* public FilmStorage getFilmStorage() {
         return filmStorage;
-    }
+    }*/
 
     public Film createFilm(Film film) {
 

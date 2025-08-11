@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.service.GenreService;
+// import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.util.List;
 
@@ -15,20 +16,18 @@ import java.util.List;
 @RequestMapping("/genres")
 public class GenreController {
 
-    @Qualifier("genreDbStorage")
-    private final GenreStorage genreStorage;
+    //  @Qualifier("genreDbStorage")
+    private final GenreService genreService;
 
     // Получение списка всех жанров
     @GetMapping
-    public List<Genre> getAllGenres() {
-        log.info("Запрошен список всех жанров");
-        return genreStorage.findAll();
+    public List<Genre> getAll() {
+        return genreService.getAll();
     }
 
     // Получение жанра по id
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable int id) {
-        log.info("Запрошен жанр с id: {}", id);
-        return genreStorage.findById(id);
+    public Genre getById(@PathVariable int id) {
+        return genreService.getById(id);
     }
 }
