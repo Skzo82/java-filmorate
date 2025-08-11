@@ -38,10 +38,6 @@ public class FilmService {
         this.genreStorage = genreStorage;
     }
 
-   /* public FilmStorage getFilmStorage() {
-        return filmStorage;
-    }*/
-
     public Film createFilm(Film film) {
 
         if (film.getMpa() == null || film.getMpa().getId() == 0) {
@@ -135,5 +131,9 @@ public class FilmService {
 
     public Film getFilmById(int id) {
         return findById(id);
+    }
+
+    public void deleteAll() {
+        filmStorage.deleteAll();
     }
 }

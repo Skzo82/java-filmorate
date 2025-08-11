@@ -33,7 +33,7 @@ public class FilmServiceTest {
                 new InMemoryGenreStorage()
         );
 
-        filmService.getFilmStorage().deleteAll();
+        filmService.deleteAll();
 
         for (int i = 1; i <= 6; i++) {
             User user = new User();
@@ -80,7 +80,7 @@ public class FilmServiceTest {
 
     @Test
     void shouldFindAllFilms() {
-        filmService.getFilmStorage().deleteAll();
+        filmService.deleteAll();
         filmService.createFilm(createTestFilm("F1"));
         filmService.createFilm(createTestFilm("F2"));
         List<Film> all = filmService.findAll();
