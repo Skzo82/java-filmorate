@@ -47,11 +47,9 @@ public class FilmDbStorage implements FilmStorage {
 
         insertGenres(film);
         film.setGenres(findGenresByFilmId(film.getId()));
-
         film.setMpa(findMpaById(film.getMpa().getId()));
         return film;
     }
-
 
     @Override
     public Film updateFilm(Film film) {
@@ -74,20 +72,8 @@ public class FilmDbStorage implements FilmStorage {
                 FROM films f
                 JOIN mpa m ON m.id = f.mpa_id
                 """;
-        List<Film> films = jdbcTemplate.query(sql, (rs, rn) -> {
-            Film f = new Film();
-            f.setId(rs.getInt("id"));
-            f.setName(rs.getString("name"));
-            f.setDescription(rs.getString("description"));
-            f.setReleaseDate(rs.getDate("release_date").toLocalDate());
-            f.setDuration(rs.getInt("duration"));
-            Mpa m = new Mpa();
-            m.setId(rs.getInt("mpa_id"));
-            m.setName(rs.getString("mpa_name"));
-            f.setMpa(m);
-            return f;
-        });
-        attachGenres(films); // ⬅️ новый helper
+        List<Film> films = jdbcTemplate.query(sql, filmRowMapperWithMpa);
+        attachGenres(films);
         return films;
     }
 
@@ -100,24 +86,11 @@ public class FilmDbStorage implements FilmStorage {
                 JOIN mpa m ON m.id = f.mpa_id
                 WHERE f.id = ?
                 """;
-        Film film = jdbcTemplate.queryForObject(sql, (rs, rn) -> {
-            Film f = new Film();
-            f.setId(rs.getInt("id"));
-            f.setName(rs.getString("name"));
-            f.setDescription(rs.getString("description"));
-            f.setReleaseDate(rs.getDate("release_date").toLocalDate());
-            f.setDuration(rs.getInt("duration"));
-            Mpa m = new Mpa();
-            m.setId(rs.getInt("mpa_id"));
-            m.setName(rs.getString("mpa_name"));
-            f.setMpa(m);
-            return f;
-        }, id);
-
-        film.setGenres(findGenresByFilmIds(List.of(film.getId())).getOrDefault(film.getId(), new LinkedHashSet<>()));
+        Film film = jdbcTemplate.queryForObject(sql, filmRowMapperWithMpa, id);
+        film.setGenres(findGenresByFilmIds(List.of(film.getId()))
+                .getOrDefault(film.getId(), new LinkedHashSet<>()));
         return film;
     }
-
 
     @Override
     public void deleteAll() {
@@ -126,7 +99,6 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update("DELETE FROM films");
     }
 
-    // --- Gestione LIKE ---
     @Override
     public void addLike(int filmId, int userId) {
         String sql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
@@ -153,17 +125,15 @@ public class FilmDbStorage implements FilmStorage {
                 LIMIT ?
                 """;
         List<Film> films = jdbcTemplate.query(sql, filmRowMapperWithMpa, count);
-        attachGenres(films); // загрузка жанров пачкой, без N+1
+        attachGenres(films);
         return films;
     }
-
 
     // --- Helpers ---
 
     private void insertGenres(Film film) {
         if (film.getGenres() == null || film.getGenres().isEmpty()) return;
 
-        // Уберём дубликаты жанров и сохраним порядок
         LinkedHashSet<Integer> genreIds = film.getGenres().stream()
                 .map(Genre::getId)
                 .collect(LinkedHashSet::new, LinkedHashSet::add, LinkedHashSet::addAll);
@@ -173,7 +143,6 @@ public class FilmDbStorage implements FilmStorage {
                 genreIds.stream().map(id -> new Object[]{film.getId(), id}).toList());
     }
 
-
     private Set<Genre> findGenresByFilmId(int filmId) {
         String sql = "SELECT g.id, g.name FROM genres g " +
                 "JOIN film_genres fg ON g.id = fg.genre_id " +
@@ -181,7 +150,6 @@ public class FilmDbStorage implements FilmStorage {
         return new LinkedHashSet<>(jdbcTemplate.query(sql, genreRowMapper, filmId));
     }
 
-    // Загрузка жанров для списка фильмов одним запросом
     private void attachGenres(List<Film> films) {
         if (films.isEmpty()) return;
         Map<Integer, Set<Genre>> byFilm = findGenresByFilmIds(
@@ -220,22 +188,6 @@ public class FilmDbStorage implements FilmStorage {
 
     // --- RowMappers ---
 
-    private final RowMapper<Film> filmRowMapper = (ResultSet rs, int rowNum) -> {
-        Film film = new Film();
-        film.setId(rs.getInt("id"));
-        film.setName(rs.getString("name"));
-        film.setDescription(rs.getString("description"));
-        film.setReleaseDate(rs.getDate("release_date").toLocalDate());
-        film.setDuration(rs.getInt("duration"));
-
-        Mpa mpa = new Mpa();
-        mpa.setId(rs.getInt("mpa_id"));
-        film.setMpa(mpa);
-
-        return film;
-    };
-
-
     private final RowMapper<Genre> genreRowMapper = (ResultSet rs, int rowNum) -> {
         Genre genre = new Genre();
         genre.setId(rs.getInt("id"));
@@ -257,12 +209,10 @@ public class FilmDbStorage implements FilmStorage {
         f.setDescription(rs.getString("description"));
         f.setReleaseDate(rs.getDate("release_date").toLocalDate());
         f.setDuration(rs.getInt("duration"));
-
         Mpa m = new Mpa();
         m.setId(rs.getInt("mpa_id"));
         m.setName(rs.getString("mpa_name"));
         f.setMpa(m);
-
         return f;
     };
 }
