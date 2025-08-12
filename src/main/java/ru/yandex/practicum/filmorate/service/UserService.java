@@ -1,20 +1,22 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserStorage userStorage;
+
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public User createUser(User user) {
         return userStorage.createUser(user);
@@ -40,46 +42,34 @@ public class UserService {
         userStorage.deleteAll();
     }
 
-    // Добавить в друзья (через метод модели)
+    // Добавление друга (реализация через storage — односторонняя дружба)
     public void addFriend(int id, int friendId) {
-        User user = findById(id);
-        User friend = findById(friendId);
-
-        user.addFriend(friendId);
-        friend.addFriend(id);
+        findById(id);       // Проверяем, что оба пользователя существуют
+        findById(friendId);
+        userStorage.addFriend(id, friendId);
     }
 
-    // Удалить из друзей (через метод модели)
+    // Удаление из друзей (storage)
     public void removeFriend(int id, int friendId) {
-        User user = findById(id);
-        User friend = findById(friendId);
-
-        user.removeFriend(friendId);
-        friend.removeFriend(id);
+        findById(id);
+        findById(friendId);
+        userStorage.removeFriend(id, friendId);
     }
 
-    // Получить список друзей пользователя
+    // Получить список друзей пользователя (storage)
     public List<User> getFriends(int id) {
-        User user = findById(id);
-        return user.getFriends().stream()
-                .map(this::findById)
-                .collect(Collectors.toList());
+        findById(id);
+        return userStorage.getFriends(id);
     }
 
-    // Получить общих друзей двух пользователей
+    // Получить общих друзей двух пользователей (storage)
     public List<User> getCommonFriends(int id, int otherId) {
-        User user1 = findById(id);
-        User user2 = findById(otherId);
-
-        Set<Integer> commonIds = new HashSet<>(user1.getFriends());
-        commonIds.retainAll(user2.getFriends());
-
-        return commonIds.stream()
-                .map(this::findById)
-                .collect(Collectors.toList());
+        findById(id);
+        findById(otherId);
+        return userStorage.getCommonFriends(id, otherId);
     }
 
-    // Обновление пользователя с пользовательской валидацией
+    // Кастомная валидация для обновления пользователя
     public User updateUserCustomValidation(User updatedUser) {
         if (updatedUser.getId() <= 0) {
             throw new ValidationException("ID пользователя обязателен для обновления.");
@@ -100,6 +90,6 @@ public class UserService {
             existing.setBirthday(updatedUser.getBirthday());
         }
 
-        return existing;
+        return userStorage.updateUser(existing);
     }
 }

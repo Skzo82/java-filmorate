@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -43,5 +44,36 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteAll() {
         films.clear();
         idGenerator.set(0);
+    }
+
+    @Override
+    public void addLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new ValidationException("Фильм не найден");
+        }
+        if (film.getLikes() == null) {
+            film.setLikes(new HashSet<>());
+        }
+        film.getLikes().add(userId);
+    }
+
+    @Override
+    public void removeLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new ValidationException("Фильм не найден");
+        }
+        if (film.getLikes() != null) {
+            film.getLikes().remove(userId);
+        }
+    }
+
+    @Override
+    public List<Film> getPopularFilms(int count) {
+        return films.values().stream()
+                .sorted(Comparator.comparingInt(f -> -(f.getLikes() == null ? 0 : f.getLikes().size())))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

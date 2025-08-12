@@ -5,8 +5,11 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryGenreStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryMpaStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
@@ -17,11 +20,54 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmServiceTest {
 
     private FilmService filmService;
+    private InMemoryUserStorage userStorage;
 
     @BeforeEach
     void setUp() {
-        filmService = new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage());
+        userStorage = new InMemoryUserStorage();
+
+        filmService = new FilmService(
+                new InMemoryFilmStorage(),
+                userStorage,
+                new InMemoryMpaStorage(),
+                new InMemoryGenreStorage()
+        );
+
+        filmService.deleteAll();
+
+        for (int i = 1; i <= 6; i++) {
+            User user = new User();
+            user.setEmail("user" + i + "@mail.com");
+            user.setLogin("user" + i);
+            user.setName("User " + i);
+            user.setBirthday(LocalDate.of(1990, 1, i));
+            userStorage.createUser(user);
+        }
+
+        for (int i = 1; i <= 6; i++) {
+            Film film = new Film();
+            film.setName("Film " + i);
+            film.setDescription("Descrizione " + i);
+            film.setReleaseDate(LocalDate.of(2000 + i, 1, 1));
+            film.setDuration(100 + i);
+            film.setMpa(new InMemoryMpaStorage().findById(1));
+            filmService.createFilm(film);
+        }
+
+        List<User> allUsers = userStorage.findAll();
+        List<Film> allFilms = filmService.findAll();
+
+        for (int i = 0; i < 6; i++) {
+            filmService.addLike(allFilms.get(i).getId(), allUsers.get(i).getId());
+        }
     }
+
+    @Test
+    void testPopularFilmsCount() {
+        List<Film> popularFilms = filmService.getPopularFilms(6);
+        assertEquals(6, popularFilms.size(), "Dovrebbero esserci 6 film popolari");
+    }
+
 
     @Test
     void shouldCreateFilmSuccessfully() {
@@ -34,6 +80,7 @@ public class FilmServiceTest {
 
     @Test
     void shouldFindAllFilms() {
+        filmService.deleteAll();
         filmService.createFilm(createTestFilm("F1"));
         filmService.createFilm(createTestFilm("F2"));
         List<Film> all = filmService.findAll();
@@ -86,18 +133,20 @@ public class FilmServiceTest {
         film.setDescription("Test");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
+
+        film.setMpa(new InMemoryMpaStorage().findById(1));
+
         return film;
     }
 
     @Test
     void shouldThrowNotFoundWhenFilmDoesNotExist() {
-        // ID несуществующего фильма
         int missingId = 999;
 
         NotFoundException ex = assertThrows(NotFoundException.class,
                 () -> filmService.findById(missingId));
 
-        assertTrue(ex.getMessage().contains("Фильм с id=" + missingId + " не найден."));
+        assertEquals("Фильм с id=" + missingId + " не найден.", ex.getMessage());
     }
 
 }
