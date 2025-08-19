@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
@@ -32,14 +33,25 @@ public class FilmControllerTest {
 
     private Film film;
 
+    private static Film buildFilm(int id, String name, String description, LocalDate release, int duration) {
+        Film film = new Film();
+        film.setId(id);
+        film.setName(name);
+        film.setDescription(description);
+        film.setReleaseDate(release);
+        film.setDuration(duration);
+
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("G");
+        film.setMpa(mpa);
+
+        return film;
+    }
+
     @BeforeEach
     void setUp() {
-        film = new Film();
-        film.setId(1);
-        film.setName("Interstellar");
-        film.setDescription("Epic science fiction film");
-        film.setReleaseDate(LocalDate.of(2014, 11, 7));
-        film.setDuration(169);
+        film = buildFilm(1, "Interstellar", "Epic science fiction film", LocalDate.of(2014, 11, 7), 169);
 
         when(filmService.createFilm(any(Film.class))).thenReturn(film);
     }
@@ -56,20 +68,16 @@ public class FilmControllerTest {
 
     @Test
     void shouldRejectEmptyName() throws Exception {
-        film.setName(""); // имя пустое
+        Film invalidFilm = buildFilm(0, "", "desc", LocalDate.of(2020, 1, 1), 100);
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(film)))
-                .andExpect(status().isBadRequest()); // должно пройти
+                        .content(mapper.writeValueAsString(invalidFilm)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldRejectFilmWithTooLongDescription() throws Exception {
-        Film invalidFilm = new Film();
-        invalidFilm.setName("Фильм слишком длинный");
-        invalidFilm.setDescription("A".repeat(201)); // строка длиной 201 символ
-        invalidFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
-        invalidFilm.setDuration(120);
+        Film invalidFilm = buildFilm(0, "Фильм слишком длинный", "A".repeat(201), LocalDate.of(2020, 1, 1), 120);
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -79,43 +87,38 @@ public class FilmControllerTest {
 
     @Test
     void shouldRejectFilmWithNonPositiveDuration() throws Exception {
-        // Ошибка: продолжительность фильма должна быть положительной
-        Film invalidFilm = new Film();
-        invalidFilm.setName("Фильм с некорректной продолжительностью");
-        invalidFilm.setDescription("Описание");
-        invalidFilm.setReleaseDate(LocalDate.of(2020, 1, 1));
-        invalidFilm.setDuration(0); // некорректная продолжительность
+        Film invalidFilm = buildFilm(0, "Фильм с некорректной продолжительностью", "Описание", LocalDate.of(2020, 1, 1), 0);
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(invalidFilm)))
-                .andExpect(status().isBadRequest()); // ожидается 400 Bad Request
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldRejectFilmWithTooOldReleaseDate() throws Exception {
-        // Ошибка: дата релиза не может быть раньше 28 декабря 1895 года
-        Film invalidFilm = new Film();
-        invalidFilm.setName("Старый фильм");
-        invalidFilm.setDescription("Исторический фильм");
-        invalidFilm.setReleaseDate(LocalDate.of(1800, 1, 1)); // слишком старая дата
-        invalidFilm.setDuration(120);
+        Film invalidFilm = buildFilm(0, "Старый фильм", "Исторический фильм", LocalDate.of(1800, 1, 1), 120);
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(invalidFilm)))
-                .andExpect(status().isBadRequest()); // ожидается 400 Bad Request
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldRejectFilmWithNullMpa() throws Exception {
+        Film invalidFilm = buildFilm(0, "Фильм без MPA", "Описание", LocalDate.of(2020, 1, 1), 120);
+        invalidFilm.setMpa(null);
+
+        mockMvc.perform(post("/films")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(invalidFilm)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldUpdateFilmSuccessfully() throws Exception {
-        // Успешное обновление фильма
-        Film updated = new Film();
-        updated.setId(1);
-        updated.setName("Interstellar (Extended)");
-        updated.setDescription("Extended version");
-        updated.setReleaseDate(LocalDate.of(2014, 11, 7));
-        updated.setDuration(170);
+        Film updated = buildFilm(1, "Interstellar (Extended)", "Extended version", LocalDate.of(2014, 11, 7), 170);
 
         when(filmService.updateFilmCustomValidation(any(Film.class))).thenReturn(updated);
 
@@ -129,12 +132,7 @@ public class FilmControllerTest {
 
     @Test
     void shouldFailUpdateWhenIdIsMissing() throws Exception {
-        // Ошибка: отсутствует ID при обновлении
-        Film invalid = new Film();
-        invalid.setName("No ID Film");
-        invalid.setDescription("Нет ID");
-        invalid.setReleaseDate(LocalDate.of(2020, 1, 1));
-        invalid.setDuration(100);
+        Film invalid = buildFilm(0, "No ID Film", "Нет ID", LocalDate.of(2020, 1, 1), 100);
 
         when(filmService.updateFilmCustomValidation(any(Film.class)))
                 .thenThrow(new ru.yandex.practicum.filmorate.exception.ValidationException("ID фильма обязателен для обновления."));
@@ -142,19 +140,12 @@ public class FilmControllerTest {
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(invalid)))
-                .andExpect(status().isBadRequest()); // ожидается 400 Bad Request
+                .andExpect(status().isBadRequest());
     }
-
 
     @Test
     void shouldReturn404IfFilmToUpdateNotFound() throws Exception {
-        // Ошибка: фильм для обновления не найден
-        Film filmToUpdate = new Film();
-        filmToUpdate.setId(999);
-        filmToUpdate.setName("Несуществующий фильм");
-        filmToUpdate.setDescription("Фильм не найден");
-        filmToUpdate.setReleaseDate(LocalDate.of(2020, 1, 1));
-        filmToUpdate.setDuration(100);
+        Film filmToUpdate = buildFilm(999, "Несуществующий фильм", "Фильм не найден", LocalDate.of(2020, 1, 1), 100);
 
         when(filmService.updateFilmCustomValidation(any(Film.class)))
                 .thenThrow(new ru.yandex.practicum.filmorate.exception.NotFoundException("Фильм не найден"));
@@ -168,13 +159,7 @@ public class FilmControllerTest {
 
     @Test
     void shouldReturnAllFilms() throws Exception {
-        // Получение списка всех фильмов
-        Film another = new Film();
-        another.setId(2);
-        another.setName("Dune");
-        another.setDescription("Science fiction");
-        another.setReleaseDate(LocalDate.of(2021, 10, 1));
-        another.setDuration(155);
+        Film another = buildFilm(2, "Dune", "Science fiction", LocalDate.of(2021, 10, 1), 155);
 
         when(filmService.findAll()).thenReturn(List.of(film, another));
 
@@ -184,5 +169,4 @@ public class FilmControllerTest {
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[1].id").value(2));
     }
-
 }
